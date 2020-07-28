@@ -19,4 +19,12 @@ export class FirebaseAuthService {
         console.log(error)
     })
   }
+  firebaseGoogleLogout(){
+    return this.fireAuth.signOut()
+    .then((result) => {
+        console.log('You have been successfully logged out!', result)
+    }).catch((error) => {
+        console.log(error)
+    })
+  }
 }
