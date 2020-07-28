@@ -11,20 +11,20 @@ export class FirebaseAuthService {
     public fireAuth: AngularFireAuth,
   ) { }
 
-  firebaseGoogleAuth(){
+  firebaseGoogleAuth() {
     return this.fireAuth.signInWithPopup(new auth.GoogleAuthProvider())
-    .then((result) => {
+      .then((result) => {
         console.log('You have been successfully logged in!', result)
-    }).catch((error) => {
+      }).catch((error) => {
         console.log(error)
-    })
+      })
   }
-  firebaseGoogleLogout(){
+  firebaseGoogleLogout() {
     return this.fireAuth.signOut()
-    .then((result) => {
+      .then((result) => {
         console.log('You have been successfully logged out!', result)
-    }).catch((error) => {
+      }).catch((error) => {
         console.log(error)
-    })
+      })
   }
 }

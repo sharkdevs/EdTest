@@ -9,6 +9,7 @@ import { AngularFireAuthModule } from '@angular/fire/auth';
 import { MediumComponent } from './medium/medium.component';
 import { AngularFireAuthGuardModule } from '@angular/fire/auth-guard';
 import { AuthComponent } from './auth/auth.component';
+import { AngularFirestoreModule } from '@angular/fire/firestore';
 
 
 @NgModule({
@@ -21,6 +22,7 @@ import { AuthComponent } from './auth/auth.component';
     BrowserModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
+    AngularFirestoreModule,
     AngularFireAuthGuardModule,
     AppRoutingModule
   ],
