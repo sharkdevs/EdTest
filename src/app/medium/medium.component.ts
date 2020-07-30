@@ -6,6 +6,7 @@ import { FirebaseStoreService } from '../services/firebase-store.service';
 import { fromEvent, Subject, Observable } from 'rxjs';
 import { filter, debounceTime, distinctUntilChanged, tap, map } from 'rxjs/operators';
 import { AngularFireAuth } from '@angular/fire/auth';
+import { MathjaxService } from '../services/mathjax.service';
 @Component({
   selector: 'app-medium',
   templateUrl: './medium.component.html',
@@ -16,27 +17,31 @@ export class MediumComponent implements OnInit, AfterViewInit {
   insertSubject$: Subject<string> = new Subject();
   user: any;
   savedComment: string = null;
+  mathJaxObject;
+  ;
   @ViewChild('editable', {
     static: true
   }) editable: ElementRef;
+  nElement: any;
 
   constructor(
     public auth: FirebaseAuthService,
     private router: Router,
     public fireAuth: AngularFireAuth,
-    public fireStoreDBService: FirebaseStoreService
-  ) {
-  }
+    public fireStoreDBService: FirebaseStoreService,
+    public mathService: MathjaxService
+  ) { }
 
   ngOnInit() {
-
+    this.mathjaxConfig()
+    this.renderMathjax();
   }
   ngAfterViewInit() {
+    this.nElement = this.editable.nativeElement;
     /**
      * Medium editor initialisation and settings
      */
-    const nElement = this.editable.nativeElement;
-    this.editor = new MediumEditor(nElement,
+    this.editor = new MediumEditor(this.nElement,
       {
         paste: {
           forcePlainText: true,
@@ -84,15 +89,16 @@ export class MediumComponent implements OnInit, AfterViewInit {
      * 1. Listen to keystrokes
      * 2. When a user pauses for two seconds, save the data in firebase using their userID
      */
-    this.editor.subscribe('editableKeyup', (event, editable) => {
+    this.editor.subscribe('editableInput', (event, editable) => {
       this.insertSubject$.next(event.target.innerHTML);
     });
     this.insertSubject$.pipe(map((event: any) => {
       return event;
     }),
-      debounceTime(2000),
+      debounceTime(1000),
       distinctUntilChanged())
       .subscribe(value => {
+        this.renderMathjax()
         this.fireStoreDBService.saveRecord(this.user.uid, value)
       });
   }
@@ -103,4 +109,32 @@ export class MediumComponent implements OnInit, AfterViewInit {
         this.router.navigate(['/login'])
       });;
   }
+
+/**
+ * Mathjax component
+ *
+ */
+updateEquation(){
+  this.mathJaxObject = this.mathService.getMediumWindow()['MathJax'];
+}
+
+renderMathjax() {
+  this.updateEquation();
+  let angObj = this;
+  setTimeout(() => {
+    angObj.mathJaxObject['Hub'].Queue(["Typeset", angObj.mathJaxObject.Hub], this.nElement);
+  },1000)
+}
+mathjaxConfig() {
+  this.updateEquation();
+  this.mathJaxObject.Hub.Config({
+    showMathMenu: false,
+    tex2jax: { inlineMath: [["$", "$"]],displayMath:[["$$", "$$"]] },
+    CommonHTML: { linebreaks: { automatic: true } },
+    "HTML-CSS": { linebreaks: { automatic: true } },
+    SVG: { linebreaks: { automatic: true } }
+  });
+}
+
+
 }
